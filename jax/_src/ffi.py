@@ -176,6 +176,8 @@ def include_dir() -> str:
 
 
 def _aval_shape(aval: core.AbstractValue) -> Shape:
+  if isinstance(aval, core.AbstractTodo):
+    return ()
   return () if aval is core.abstract_token else core.physical_aval(aval).shape  # pyrefly: ignore[missing-attribute]
 
 
