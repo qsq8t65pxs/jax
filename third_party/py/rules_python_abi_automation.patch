@@ -1,0 +1,42 @@
+diff --git a/python/private/pypi/hub_builder.bzl b/python/private/pypi/hub_builder.bzl
+index 700f22e2..793636ef 100644
+--- a/python/private/pypi/hub_builder.bzl
++++ b/python/private/pypi/hub_builder.bzl
+@@ -441,6 +441,8 @@ def _create_whl_repos(
+         extra_pip_args = pip_attr.extra_pip_args,
+         get_index_urls = self._get_index_urls.get(pip_attr.python_version),
+         evaluate_markers = _evaluate_markers(self, pip_attr, enable_pipstar),
++        download_only = pip_attr.download_only,
++        python_version = pip_attr.python_version,
+         logger = logger,
+     )
+ 
+diff --git a/python/private/pypi/parse_requirements.bzl b/python/private/pypi/parse_requirements.bzl
+index 760bf5a9..9de62e26 100644
+--- a/python/private/pypi/parse_requirements.bzl
++++ b/python/private/pypi/parse_requirements.bzl
+@@ -42,6 +42,8 @@ def parse_requirements(
+         get_index_urls = None,
+         evaluate_markers = None,
+         extract_url_srcs = True,
++        download_only = False,
++        python_version = None,
+         logger):
+     """Get the requirements with platforms that the requirements apply to.
+ 
+@@ -111,7 +113,14 @@ def parse_requirements(
+                 # output all of the requirement lines that have a marker
+                 if ";" in requirement_line:
+                     reqs_with_env_markers.setdefault(requirement_line, []).append(plat)
+-            options[plat] = pip_args
++            plat_args = list(pip_args)
++            if download_only and plat.endswith("freethreaded") and python_version:
++                if not any([a.startswith("--abi") for a in plat_args]):
++                    major, _, tail = python_version.partition(".")
++                    minor, _, _ = tail.partition(".")
++                    if major and minor:
++                        plat_args.append("--abi=cp{}{}t".format(major, minor))
++            options[plat] = plat_args
+ 
+     # This may call to Python, so execute it early (before calling to the
+     # internet below) and ensure that we call it only once.
