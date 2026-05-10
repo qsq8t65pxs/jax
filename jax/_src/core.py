@@ -2679,7 +2679,7 @@ def insert_reduced_reshard(args):
       out.append(arg)
   return out
 
-def standard_insert_pvary(*args):
+def auto_insert_reshard(*args):
   if not args:
     return args
   if not config._check_vma.value:
