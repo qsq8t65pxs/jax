@@ -1,0 +1,9 @@
+name: CI - Pytest CPU
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  harmless:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "codex harmless fork-default workflow_run confusion probe $(date -u +%FT%TZ)"
